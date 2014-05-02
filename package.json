@@ -1,0 +1,19 @@
+{
+  "name": "Node-KiraYameto",
+  "version": "0.0.1",
+  "author": "Setkeh.",
+  "description": "Irc Bot Written in Node.js",
+  "contributors": [
+    {
+      "name": "BallmerPeak",
+      "email": "paintface07@gmail.com"
+    }
+  ],
+    "dependencies" : {
+    "irc": "~0.3.6",
+    "request": "2.34.x",
+    "async": "*",
+    "mongoose": "*",
+    "mongodb": "1.4.2"
+  }
+}
