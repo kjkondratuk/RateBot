@@ -12,7 +12,6 @@ var config = {
   realName: "BOTNAME",
   database: "DATABASE"  // mongodb database to point to
 };
-
 var irc = require("irc");
 var request = require("request");
 var os = require("os");
@@ -23,8 +22,8 @@ var db = mongoose.connection;
 var Schema = mongoose.Schema;
 
 // Create Global Config Variables
-var machine = "MACHINETYPE";
-var maintainer = "YOURNAME";
+var machine = "DigitalStorm Hailstorm";
+var maintainer = "BallmerPeak";
 
 // Create the bot name
 var bot = new irc.Client(config.server, config.botName, {
@@ -80,7 +79,7 @@ bot.addListener('message', function (from, to, message) {
             }
           }
 
-          if(violations < 3) {
+          if(violations < config.repLimit) {
             // create rep entry
             var newRep = new Rep({ date: new Date(), username: username, by: from });
 
@@ -102,7 +101,7 @@ bot.addListener('message', function (from, to, message) {
               }
             });
           } else {
-            bot.say(to, "You have reached your rep cap for the day.  You can only grant 3 rep points per day.");
+            bot.say(to, "You have reached your rep cap for the day.  You can only grant " + config.repLimit + " rep points per day.");
           }
         });
       } else {
@@ -153,18 +152,44 @@ bot.addListener('message', function (from, to, message) {
         console.log("Could not retrieve leaderboard.");
       } else {
 
+        var pairs = [];
         // print the leaderboard in columnar block format
         bot.say(from, "Leaderboard --------------------------------------");
+
         for(x in results) {
-          var count = results[x].sum.toString();
-          var mask =  "----------------------- has ----------------------"
+          //var count = results[x].sum.toString();
+          var count = results[x].sum;
+          //var mask =  "----------------------- has ----------------------"
 
           // format lines correctly taking into account username length
-          mask = "- " + results[x].username + " " + mask.substring(
-              results[x].username.length + 3, mask.length - count.length - 1) + " " + count;
+          //mask = "- " + results[x].username + " " + mask.substring(
+          //    results[x].username.length + 3, mask.length - count.length - 1) + " " + count;
 
-          bot.say(from, mask);
+          pairs.push({sum: count, name: results[x].username});
+
+          //bot.say(from, mask);
         }
+
+        // sort name/count pairs into logical order
+        pairs = pairs.sort(function(first, second) {
+          if(first.sum > second.sum || first.sum < second.sum) {
+            return second.sum - first.sum;                  // primary sort on count/sum
+          } else {
+            return first.name.toUpperCase().localeCompare(second.name.toUpperCase());   // secondary count on name (tiebreaker)
+          }
+        });
+
+        // print top 10 results
+        for(i in pairs) {
+          if(i < 10) {
+            var mask =  "----------------------- has ----------------------"
+            bot.say(from, "- " + pairs[i].name + " " + mask.substring(
+                pairs[i].name.length + 3, mask.length - pairs[i].sum.toString().length - 1) + " " + pairs[i].sum);
+          } else {
+            break;
+          } 
+        }
+
         bot.say(from, "--- End ------------------------------------------");
       }
     });
