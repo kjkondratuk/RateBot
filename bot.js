@@ -22,8 +22,8 @@ var db = mongoose.connection;
 var Schema = mongoose.Schema;
 
 // Create Global Config Variables
-var machine = "DigitalStorm Hailstorm";
-var maintainer = "BallmerPeak";
+var machine = "MACHINENAME";
+var maintainer = "USERNAME";
 
 // Create the bot name
 var bot = new irc.Client(config.server, config.botName, {
